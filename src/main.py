@@ -1,3 +1,4 @@
+import json
 from config import GITHUB_API, LOG_LEVEL
 from logger import get_logger
 from extract.github_extractor import fetch_repository_data
@@ -16,6 +17,12 @@ def main():
     repo_data = fetch_repository_data("python", "cpython")
 
     if repo_data:
+        
+        # Save raw JSON response
+        with open("data/cpython.json", "w") as file:
+          json.dump(repo_data, file, indent=4)
+
+        logger.info("Repository data saved successfully.")
         logger.info(f"Repository Name: {repo_data.get('name')}")
         logger.info(f"Owner: {repo_data.get('owner', {}).get('login')}")
         logger.info(f"Stars: {repo_data.get('stargazers_count')}")
