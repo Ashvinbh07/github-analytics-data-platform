@@ -10,32 +10,49 @@ def fetch_repository_data(owner: str, repo: str):
     """
     Fetch repository information from GitHub API.
     """
-    url = f"{GITHUB_API}/repos/{owner}/{repo}"
+
+    if not owner or not repo:
+        logger.error("Owner or repository name is empty")
+        return None
+
+    url = f"{GITHUB_API}/repos/{owner.strip()}/{repo.strip()}"
 
     try:
-        logger.info(f"Fetching repository data for {owner}/{repo}")
+        logger.info(f"Starting GitHub API request → {owner}/{repo}")
 
         response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
-            logger.info("Repository data fetched successfully")
+            logger.info("GitHub API request successful")
             return response.json()
 
-        if response.status_code == 404:
-            logger.error(f"Repository not found: {owner}/{repo}")
+        elif response.status_code == 404:
+            logger.error("Repository not found (404)")
             return None
 
-        logger.error(f"Failed to fetch data. Status code: {response.status_code}")
-        return None
+        elif response.status_code == 403:
+            logger.error("Access forbidden or rate limit exceeded (403)")
+            return None
+
+        else:
+            logger.error(f"Unexpected status code: {response.status_code}")
+            return None
 
     except requests.exceptions.Timeout:
         logger.error("Request timed out")
         return None
 
     except requests.exceptions.ConnectionError:
-        logger.error("Connection error. Please check your internet connection")
+        logger.error("Network connection error")
         return None
 
     except requests.exceptions.RequestException as error:
         logger.error(f"Unexpected request error: {error}")
         return None
+
+    except Exception as e:
+        logger.error(f"Unexpected system error: {str(e)}")
+        return None
+
+    finally:
+        logger.warning("Request cycle completed")

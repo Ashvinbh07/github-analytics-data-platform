@@ -13,10 +13,14 @@ def main():
     Entry point of the GitHub Analytics Data Platform.
     """
     logger.info("Application started")
+    logger.info("Waiting for user input...")    
     logger.info(f"GitHub API URL: {GITHUB_API}")
     logger.info(f"Log level: {LOG_LEVEL}")
 
-    repo_data = fetch_repository_data("python", "cpython")
+    owner = input("Enter GitHub Owner: ")
+    repo = input("Enter Repository Name: ")
+
+    repo_data = fetch_repository_data(owner, repo)
 
     if repo_data:
         
