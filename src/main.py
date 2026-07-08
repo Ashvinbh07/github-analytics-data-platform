@@ -1,4 +1,5 @@
 import json
+import sys
 
 from config import GITHUB_API, LOG_LEVEL
 from logger import get_logger
@@ -13,25 +14,31 @@ def main():
     Entry point of the GitHub Analytics Data Platform.
     """
     logger.info("Application started")
-    logger.info("Waiting for user input...")    
     logger.info(f"GitHub API URL: {GITHUB_API}")
     logger.info(f"Log level: {LOG_LEVEL}")
 
-    owner = input("Enter GitHub Owner: ")
-    repo = input("Enter Repository Name: ")
+    if len(sys.argv) != 3:
+        logger.error("Usage: python src/main.py <owner> <repo>")
+        return
+
+    owner = sys.argv[1]
+    repo = sys.argv[2]
+
+    logger.info(f"Repository selected: {owner}/{repo}")
 
     repo_data = fetch_repository_data(owner, repo)
 
     if repo_data:
-        
+
         # Save raw JSON response
         with open("data/cpython.json", "w") as file:
-          json.dump(repo_data, file, indent=4)
+            json.dump(repo_data, file, indent=4)
 
         logger.info("Repository data saved successfully.")
 
         # Transform raw data
         clean_data = transform_repository_data(repo_data)
+
         # Save transformed data
         with open("data/clean_repository_data.json", "w") as file:
             json.dump(clean_data, file, indent=4)
